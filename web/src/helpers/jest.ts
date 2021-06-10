@@ -47,6 +47,7 @@ const mockConfig: Config = {
         'address'
     ],
     themeSwitcher: 'visible',
+    msComponentUpdate: '1000',
 };
 
 // tslint:disable no-any no-console

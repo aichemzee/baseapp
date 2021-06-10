@@ -37,6 +37,7 @@ import {
     orderExecuteFetch,
     selectOrderExecuteLoading,
 } from '../../modules/user/orders';
+import { msComponentUpdate } from 'src/api';
 
 interface ReduxProps {
     currentMarket: Market | undefined;
@@ -158,7 +159,7 @@ class OrderInsert extends React.PureComponent<Props, StoreProps> {
             (nextProps.currentPrice !== currentPrice) ||
             (JSON.stringify(nextProps.wallets) !== JSON.stringify(wallets)) ||
             (nextProps.isMobileDevice !== isMobileDevice)
-        ) && seconds >= 1;
+        ) && seconds >= +msComponentUpdate() / 1000;
     }
 
     public render() {

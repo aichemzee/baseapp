@@ -5,6 +5,7 @@ import {
 } from 'react-intl';
 import { connect, MapDispatchToPropsFunction } from 'react-redux';
 import { compose } from 'redux';
+import { msComponentUpdate } from 'src/api';
 import { IntlProps } from '../../';
 import { TabPanel } from '../../components';
 import {
@@ -75,7 +76,7 @@ class RecentTradesComponent extends React.Component<RecentTradesProps, State> {
             (nextProps.currentMarket && nextProps.currentMarket.id) !== (currentMarket && currentMarket.id) ||
             (nextProps.isMobileDevice !== isMobileDevice) ||
             (nextProps.userLoggedIn !== userLoggedIn)
-        ) && seconds >= 1;
+        ) && seconds >= +msComponentUpdate() / 1000;
     }
 
     public componentDidUpdate() {

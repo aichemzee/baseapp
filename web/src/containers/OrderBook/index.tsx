@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Spinner } from 'react-bootstrap';
 import { injectIntl } from 'react-intl';
 import { connect, MapDispatchToPropsFunction } from 'react-redux';
+import { msComponentUpdate } from 'src/api';
 import { IntlProps } from '../../';
 import { CombinedOrderBook, Decimal } from '../../components';
 import { colors } from '../../constants';
@@ -129,7 +130,7 @@ class OrderBookContainer extends React.Component<Props, State> {
             (JSON.stringify(currentMarketTicker) !== JSON.stringify(nextCurrentMarketTicker)) ||
             (orderBookLoading !== nextProps.orderBookLoading) ||
             JSON.stringify(nextProps.openOrdersList) !== JSON.stringify(openOrdersList)
-        ) && seconds >= 1;
+        ) && seconds >= +msComponentUpdate() / 1000;
     }
 
     public render() {
