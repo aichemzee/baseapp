@@ -86,9 +86,11 @@ class OrderInsert extends React.PureComponent<Props, StoreProps> {
         };
 
         this.orderRef = React.createRef();
+        this.lastUpdateDate = new Date();
     }
 
     private orderRef;
+    private lastUpdateDate;
 
     public componentDidMount() {
         if (!this.props.wallets.length) {
@@ -102,6 +104,8 @@ class OrderInsert extends React.PureComponent<Props, StoreProps> {
                 width: this.orderRef.current.clientWidth,
             });
         }
+
+        this.lastUpdateDate = new Date();
     }
 
     public componentWillReceiveProps(next: Props) {
@@ -116,6 +120,45 @@ class OrderInsert extends React.PureComponent<Props, StoreProps> {
                 priceLimit: +next.currentPrice,
             });
         }
+    }
+
+    public shouldComponentUpdate(nextProps: Props) {
+        const {
+            asks,
+            bids,
+            currentMarket,
+            currentMarketFilters,
+            marketTickers,
+            executeLoading,
+            currentPrice,
+            wallets,
+            isMobileDevice,
+        } = this.props;
+        const { width } = this.state;
+
+        const now = new Date();
+        var seconds = (now.getTime() - this.lastUpdateDate.getTime()) / 1000;
+
+        const defaultTicker = {
+            last: 0,
+            price_change_percent: '+0.00%',
+        };
+
+        const currentMarketTicker = currentMarket && marketTickers ? marketTickers[currentMarket.id] : defaultTicker;
+        const nextCurrentMarketTicker = currentMarket && nextProps.marketTickers ? nextProps.marketTickers[currentMarket.id] : defaultTicker;
+
+        return (
+            JSON.stringify(nextProps.asks) !== JSON.stringify(asks) ||
+            JSON.stringify(nextProps.bids) !== JSON.stringify(bids) ||
+            (nextProps.currentMarket && nextProps.currentMarket.id) !== (currentMarket && currentMarket.id) ||
+            (this.orderRef.current && this.orderRef.current.clientWidth !== width) ||
+            (JSON.stringify(currentMarketTicker) !== JSON.stringify(nextCurrentMarketTicker)) ||
+            (executeLoading !== nextProps.executeLoading) ||
+            JSON.stringify(nextProps.currentMarketFilters) !== JSON.stringify(currentMarketFilters) ||
+            (nextProps.currentPrice !== currentPrice) ||
+            (JSON.stringify(nextProps.wallets) !== JSON.stringify(wallets)) ||
+            (nextProps.isMobileDevice !== isMobileDevice)
+        ) && seconds >= 1;
     }
 
     public render() {

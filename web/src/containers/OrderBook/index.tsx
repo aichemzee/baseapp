@@ -70,9 +70,11 @@ class OrderBookContainer extends React.Component<Props, State> {
         };
 
         this.orderRef = React.createRef();
+        this.lastUpdateDate = new Date();
     }
 
     private orderRef;
+    private lastUpdateDate;
 
     public componentDidMount() {
         window.addEventListener('resize', this.handleResize);
@@ -89,6 +91,8 @@ class OrderBookContainer extends React.Component<Props, State> {
                 }
             }, 5000);
         }
+
+        this.lastUpdateDate = new Date();
     }
 
     public componentWillUnmount() {
@@ -105,6 +109,10 @@ class OrderBookContainer extends React.Component<Props, State> {
             openOrdersList,
         } = this.props;
         const { width } = this.state;
+
+        const now = new Date();
+        var seconds = (now.getTime() - this.lastUpdateDate.getTime()) / 1000;
+
         const defaultTicker = {
             last: 0,
             price_change_percent: '+0.00%',
@@ -121,7 +129,7 @@ class OrderBookContainer extends React.Component<Props, State> {
             (JSON.stringify(currentMarketTicker) !== JSON.stringify(nextCurrentMarketTicker)) ||
             (orderBookLoading !== nextProps.orderBookLoading) ||
             JSON.stringify(nextProps.openOrdersList) !== JSON.stringify(openOrdersList)
-        );
+        ) && seconds >= 1;
     }
 
     public render() {

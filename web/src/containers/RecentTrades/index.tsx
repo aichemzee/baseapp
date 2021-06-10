@@ -45,8 +45,14 @@ interface State {
 export type RecentTradesProps = DispatchProps & ReduxProps & IntlProps;
 
 class RecentTradesComponent extends React.Component<RecentTradesProps, State> {
-    public state = { tab: 'market', index: 0, disable: false };
+    constructor(props: RecentTradesProps) {
+        super(props);
 
+        this.state = { tab: 'market', index: 0, disable: false };
+        this.lastUpdateDate = new Date();
+    }
+
+    private lastUpdateDate;
     public tabMapping = ['market', 'yours'];
 
     public componentWillUnmount() {
@@ -61,12 +67,19 @@ class RecentTradesComponent extends React.Component<RecentTradesProps, State> {
             userLoggedIn,
         } = this.props;
 
+        const now = new Date();
+        var seconds = (now.getTime() - this.lastUpdateDate.getTime()) / 1000;
+
         return (
             JSON.stringify(nextProps.recentTrades) !== JSON.stringify(recentTrades) ||
             (nextProps.currentMarket && nextProps.currentMarket.id) !== (currentMarket && currentMarket.id) ||
             (nextProps.isMobileDevice !== isMobileDevice) ||
             (nextProps.userLoggedIn !== userLoggedIn)
-        );
+        ) && seconds >= 1;
+    }
+
+    public componentDidUpdate() {
+        this.lastUpdateDate = new Date();
     }
 
     public render() {
