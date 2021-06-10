@@ -1,7 +1,7 @@
 // import classnames from 'classnames';
 import * as React from 'react';
 import { useIntl } from 'react-intl';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux'
 import {
     beneficiariesCreateData,
     beneficiariesDelete,
@@ -29,7 +29,7 @@ import { BeneficiariesActivateModal } from './BeneficiariesActivateModal';
 import { BeneficiariesAddModal } from './BeneficiariesAddModal';
 import { BeneficiariesFailAddModal } from './BeneficiariesFailAddModal';
 import { TabPanel } from '../TabPanel';
-
+import { SelectBeneficiariesCrypto } from './BeneficiariesCrypto/SelectBeneficiariesCrypto';
 
 interface OwnProps {
     currency: string;
@@ -51,7 +51,7 @@ const defaultBeneficiary: Beneficiary = {
 type Props = OwnProps;
 
 const BeneficiariesComponent: React.FC<Props> = (props: Props) => {
-    const [tab, setTab] = React.useState('Whitelisted');
+    const [tab, setTab] = React.useState('Add Whitelisted');
     const [currentTabIndex, setCurrentTabIndex] = React.useState(0);
 
     const [currentWithdrawalBeneficiary, setWithdrawalBeneficiary] = React.useState(defaultBeneficiary);
@@ -75,6 +75,9 @@ const BeneficiariesComponent: React.FC<Props> = (props: Props) => {
     const userData = useSelector(selectUserInfo);
     const isMobileDevice = useSelector(selectMobileDeviceState);
     /*    ---------    */
+
+    const uniqueBlockchainKeys = new Set(beneficiaries.map(item => item.blockchain_key));
+    const uniqueBlockchainKeysValues = [...uniqueBlockchainKeys.values()];
 
     React.useEffect(() => {
         if (beneficiaries) {
@@ -104,6 +107,10 @@ const BeneficiariesComponent: React.FC<Props> = (props: Props) => {
         if (beneficiariesActivateSuccess) {
             setConfirmationModalState(false);
             setAddressModalState(false);
+        }
+
+        if (beneficiaries.length) {
+            setTab('Whitelisted');
         }
     }, [beneficiaries, beneficiariesAddSuccess, beneficiariesActivateSuccess]);
 
@@ -256,7 +263,7 @@ const BeneficiariesComponent: React.FC<Props> = (props: Props) => {
         if (type === 'fiat') {
             return (
                 <div className="pg-beneficiaries__dropdown">
-                    <div className="pg-beneficiaries__dropdown__select fiat-select select">
+                    <div className="pg-beneficiaries__dropdown__select fiat-select select" onClick={handleClickToggleAddAddressModal()}>
                         <div className="select__left">
                             <span className="select__left__title">{formatMessage({ id: 'page.body.wallets.beneficiaries.dropdown.fiat.name' })}</span>
                             <span className="select__left__address">{currentWithdrawalBeneficiary.name}</span>
@@ -279,7 +286,7 @@ const BeneficiariesComponent: React.FC<Props> = (props: Props) => {
 
         return (
             <div className="pg-beneficiaries__dropdown">
-                <div className="pg-beneficiaries__dropdown__select select">
+                <div className="pg-beneficiaries__dropdown__select select" onClick={handleClickToggleAddAddressModal()}>
                     <div className="select__left">
                         <span className="select__left__title">
                             {currentWithdrawalBeneficiary.name}
@@ -426,13 +433,26 @@ const BeneficiariesComponent: React.FC<Props> = (props: Props) => {
     const onCurrentTabChange = index => setCurrentTabIndex(index);
 
     const renderTabs = React.useMemo(() => {
+        if (beneficiaries.length) {
+            return [
+                {
+                    content: tab === 'Whitelisted' ? uniqueBlockchainKeysValues.map(item => <SelectBeneficiariesCrypto blockchainKey={item} currency={currency} />) : null,
+                    label: 'Whitelisted',
+                },
+                {
+                    content: tab === 'Add Whitelisted' ? renderBeneficiariesAddModal : null,
+                    label: 'Add Whitelisted',
+                }
+            ]
+        }
+
         return [
             {
-                content: tab === 'Whitelisted' ? renderBeneficiariesAddModal : null,
-                label: 'Whitelisted',
+                content: tab === 'Add Whitelisted' ? renderBeneficiariesAddModal : null,
+                label: 'Add Whitelisted',
             }
         ]
-    }, [tab, isOpenConfirmationModal, isOpenFailModal]);
+    }, [tab, isOpenConfirmationModal, isOpenFailModal, beneficiaries]);
 
     const renderTabPanel = React.useMemo(() => {
         if (isOpenConfirmationModal) {
@@ -449,7 +469,7 @@ const BeneficiariesComponent: React.FC<Props> = (props: Props) => {
             currentTabIndex={currentTabIndex}
             onCurrentTabChange={onCurrentTabChange}
         />
-    }, [isOpenAddressModal, isOpenConfirmationModal, isOpenFailModal])
+    }, [isOpenAddressModal, isOpenConfirmationModal, isOpenFailModal, tab])
 
     const renderTitle = React.useMemo(() => {
         if (isOpenConfirmationModal) {
@@ -467,7 +487,7 @@ const BeneficiariesComponent: React.FC<Props> = (props: Props) => {
                     <div className="cr-email-form__option">
                         <div className="cr-email-form__option-inner">
                             <LogoIcon />
-                            <HugeCloseIcon className="cr-email-form__option-inner-close" onClick={() => window.console.log('close modal')}/>
+                            <HugeCloseIcon className="cr-email-form__option-inner-close" onClick={() => setAddressModalState(false)}/>
                         </div>
                     </div>
                 </div>
