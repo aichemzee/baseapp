@@ -112,7 +112,7 @@ class OrderBookContainer extends React.Component<Props, State> {
         const { width } = this.state;
 
         const now = new Date();
-        var seconds = (now.getTime() - this.lastUpdateDate.getTime()) / 1000;
+        const seconds = (now.getTime() - this.lastUpdateDate.getTime()) / 1000;
 
         const defaultTicker = {
             last: 0,
@@ -122,15 +122,18 @@ class OrderBookContainer extends React.Component<Props, State> {
         const currentMarketTicker = currentMarket && marketTickers ? marketTickers[currentMarket.id] : defaultTicker;
         const nextCurrentMarketTicker = currentMarket && nextProps.marketTickers ? nextProps.marketTickers[currentMarket.id] : defaultTicker;
 
-        return (
-            JSON.stringify(nextProps.asks) !== JSON.stringify(asks) ||
-            JSON.stringify(nextProps.bids) !== JSON.stringify(bids) ||
+        const shouldImmediatelyUpdate = (
             (nextProps.currentMarket && nextProps.currentMarket.id) !== (currentMarket && currentMarket.id) ||
             (this.orderRef.current && this.orderRef.current.clientWidth !== width) ||
+            (orderBookLoading !== nextProps.orderBookLoading));
+
+        return shouldImmediatelyUpdate || ((
+            JSON.stringify(nextProps.asks) !== JSON.stringify(asks) ||
+            JSON.stringify(nextProps.bids) !== JSON.stringify(bids) ||
+            (this.orderRef.current && this.orderRef.current.clientWidth !== width) ||
             (JSON.stringify(currentMarketTicker) !== JSON.stringify(nextCurrentMarketTicker)) ||
-            (orderBookLoading !== nextProps.orderBookLoading) ||
             JSON.stringify(nextProps.openOrdersList) !== JSON.stringify(openOrdersList)
-        ) && seconds >= +msComponentUpdate() / 1000;
+        ) && seconds >= +msComponentUpdate() / 1000);
     }
 
     public render() {

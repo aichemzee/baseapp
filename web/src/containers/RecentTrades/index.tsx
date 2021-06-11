@@ -19,7 +19,7 @@ import {
     selectUserLoggedIn,
     setCurrentPrice,
 } from '../../modules';
-import { recentTradesFetch, selectRecentTradesOfCurrentMarket } from '../../modules/public/recentTrades';
+import { recentTradesFetch, selectRecentTradesLoading, selectRecentTradesOfCurrentMarket } from '../../modules/public/recentTrades';
 import { RecentTradesMarket } from './Market';
 import { RecentTradesYours } from './Yours';
 
@@ -29,6 +29,7 @@ interface ReduxProps {
     currentPrice: number | undefined;
     userLoggedIn: boolean;
     isMobileDevice: boolean;
+    loading: boolean;
 }
 
 interface DispatchProps {
@@ -66,17 +67,22 @@ class RecentTradesComponent extends React.Component<RecentTradesProps, State> {
             isMobileDevice,
             currentMarket,
             userLoggedIn,
+            loading,
         } = this.props;
 
         const now = new Date();
-        var seconds = (now.getTime() - this.lastUpdateDate.getTime()) / 1000;
+        const seconds = (now.getTime() - this.lastUpdateDate.getTime()) / 1000;
 
-        return (
-            JSON.stringify(nextProps.recentTrades) !== JSON.stringify(recentTrades) ||
+        const shouldImmediatelyUpdate = (
             (nextProps.currentMarket && nextProps.currentMarket.id) !== (currentMarket && currentMarket.id) ||
             (nextProps.isMobileDevice !== isMobileDevice) ||
-            (nextProps.userLoggedIn !== userLoggedIn)
-        ) && seconds >= +msComponentUpdate() / 1000;
+            (nextProps.userLoggedIn !== userLoggedIn) ||
+            (nextProps.loading !== loading)
+        );
+
+        return shouldImmediatelyUpdate || ((
+            JSON.stringify(nextProps.recentTrades) !== JSON.stringify(recentTrades)
+        ) && seconds >= +msComponentUpdate() / 1000);
     }
 
     public componentDidUpdate() {
@@ -159,6 +165,7 @@ const mapStateToProps = (state: RootState): ReduxProps => ({
     currentPrice: selectCurrentPrice(state),
     userLoggedIn: selectUserLoggedIn(state),
     isMobileDevice: selectMobileDeviceState(state),
+    loading: selectRecentTradesLoading(state),
 });
 
 const mapDispatchToProps: MapDispatchToPropsFunction<DispatchProps, {}> = dispatch => ({

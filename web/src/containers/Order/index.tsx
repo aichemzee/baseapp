@@ -138,7 +138,7 @@ class OrderInsert extends React.PureComponent<Props, StoreProps> {
         const { width } = this.state;
 
         const now = new Date();
-        var seconds = (now.getTime() - this.lastUpdateDate.getTime()) / 1000;
+        const seconds = (now.getTime() - this.lastUpdateDate.getTime()) / 1000;
 
         const defaultTicker = {
             last: 0,
@@ -148,18 +148,21 @@ class OrderInsert extends React.PureComponent<Props, StoreProps> {
         const currentMarketTicker = currentMarket && marketTickers ? marketTickers[currentMarket.id] : defaultTicker;
         const nextCurrentMarketTicker = currentMarket && nextProps.marketTickers ? nextProps.marketTickers[currentMarket.id] : defaultTicker;
 
-        return (
-            JSON.stringify(nextProps.asks) !== JSON.stringify(asks) ||
-            JSON.stringify(nextProps.bids) !== JSON.stringify(bids) ||
+        const shouldImmediatelyUpdate = (
             (nextProps.currentMarket && nextProps.currentMarket.id) !== (currentMarket && currentMarket.id) ||
             (this.orderRef.current && this.orderRef.current.clientWidth !== width) ||
-            (JSON.stringify(currentMarketTicker) !== JSON.stringify(nextCurrentMarketTicker)) ||
             (executeLoading !== nextProps.executeLoading) ||
             JSON.stringify(nextProps.currentMarketFilters) !== JSON.stringify(currentMarketFilters) ||
             (nextProps.currentPrice !== currentPrice) ||
-            (JSON.stringify(nextProps.wallets) !== JSON.stringify(wallets)) ||
             (nextProps.isMobileDevice !== isMobileDevice)
-        ) && seconds >= +msComponentUpdate() / 1000;
+        );
+
+        return shouldImmediatelyUpdate || ((
+            JSON.stringify(nextProps.asks) !== JSON.stringify(asks) ||
+            JSON.stringify(nextProps.bids) !== JSON.stringify(bids) ||
+            (JSON.stringify(currentMarketTicker) !== JSON.stringify(nextCurrentMarketTicker)) ||
+            (JSON.stringify(nextProps.wallets) !== JSON.stringify(wallets))
+        ) && seconds >= +msComponentUpdate() / 1000);
     }
 
     public render() {
