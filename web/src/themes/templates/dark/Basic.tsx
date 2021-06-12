@@ -1,4 +1,4 @@
-import { ThemeColorInterface } from '../../types';
+import {LogoInterface, ThemeColorInterface} from '../../types';
 
 export const BasicTheme: ThemeColorInterface[] = [
     { key: '--rgb-primary-cta-color', value: '60, 120, 224' },
@@ -24,4 +24,9 @@ export const BasicTheme: ThemeColorInterface[] = [
     { key: '--rgb-landing-background-color', value: '251, 251, 251' },
     { key: '--rgb-strength-meter-very-strong', value: '108, 239, 239' },
 ];
+
+
+export const BasicLogo: LogoInterface = {
+    url: "https://tookoin.sfo3.cdn.digitaloceanspaces.com/icons/icon.png"
+};
 
